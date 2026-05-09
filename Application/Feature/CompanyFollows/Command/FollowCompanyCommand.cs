@@ -1,0 +1,16 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FluentResults;
+using JobFinder.Contracts.Dtos.CompanyFollows;
+
+namespace JobFinder.Application.Feature.CompanyFollows.Command
+{
+    public class FollowCompanyCommand : MediatR.IRequest<Result<CompanyFollowDto>>
+    {
+        public Guid CompanyId { get; set; }
+        public string UserId { get; set; }
+    }
+}

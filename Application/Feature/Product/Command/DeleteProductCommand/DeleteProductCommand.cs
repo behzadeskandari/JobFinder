@@ -1,0 +1,13 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using FluentResults;
+using MediatR;
+
+namespace JobFinder.Application.Feature.Product.Command.DeleteProductCommand
+{
+    public record DeleteProductCommand(int Id) : IRequest<Result<bool>>;
+
+}
