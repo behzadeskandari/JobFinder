@@ -58,8 +58,8 @@ namespace Core.Configuration
             // Configure File Storage
             services.Configure<FileStorageOptions>(options =>
                 configuration.GetSection("FileStorage").Bind(options));
-            services.AddSingleton<LocalDiskStorageService>();
-            services.AddSingleton<AzureBlobStorageService>();
+            services.AddScoped<LocalDiskStorageService>();
+            services.AddScoped<AzureBlobStorageService>();
             services.AddScoped<IFileStorageService>(provider =>
             {
                 var options = provider.GetRequiredService<IOptions<FileStorageOptions>>().Value;
