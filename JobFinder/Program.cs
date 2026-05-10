@@ -44,6 +44,7 @@ using JobFinder.Common;
 using JobFinder.Services;
 using JobFinder.Filters;
 using JobFinder.MiddleWare;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -96,7 +97,7 @@ builder.Services.AddScoped<ICommunicationOrchestrator, CommunicationOrchestrator
 
 builder.Services.AddDbContext<Persistance.DatabaseContext.LogContext.ExceptionContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("WorkLoggingConnection"));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LoggingConnection"));
     if (builder.Environment.IsDevelopment())
         options.EnableDetailedErrors().EnableSensitiveDataLogging()
             .ConfigureWarnings(x => x.Default(WarningBehavior.Log));
@@ -138,7 +139,7 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console() // Console logging for debugging
     .WriteTo.MSSqlServer(
-        connectionString: builder.Configuration.GetConnectionString("WorkLoggingConnection"),
+        connectionString: builder.Configuration.GetConnectionString("LoggingConnection"),
         sinkOptions: new MSSqlServerSinkOptions
         {
             TableName = "SerilogTbl",
@@ -384,17 +385,17 @@ builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddSingleton<ProblemDetailsFactory, JobSekeerProblemDetailFactory>();
 
 
-//builder.Services.AddApiVersioning(
-//          opt =>
-//          {
-//              opt.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
-//              opt.AssumeDefaultVersionWhenUnspecified = true;
-//              opt.ReportApiVersions = true;
-//              opt.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
-//                                                              new HeaderApiVersionReader("x-api-version"),
-//                                                              new MediaTypeApiVersionReader("x-api-version"));
-//          }
-//      );
+builder.Services.AddApiVersioning(
+          opt =>
+          {
+              opt.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+              opt.AssumeDefaultVersionWhenUnspecified = true;
+              opt.ReportApiVersions = true;
+              opt.ApiVersionReader = ApiVersionReader.Combine(new UrlSegmentApiVersionReader(),
+                                                              new HeaderApiVersionReader("x-api-version"),
+                                                              new MediaTypeApiVersionReader("x-api-version"));
+          }
+      );
 var app = builder.Build();
 
 app.UseCors("UnifiedPolicy");

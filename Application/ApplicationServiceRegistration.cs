@@ -33,7 +33,7 @@ namespace Application
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
-            services.AddTransient<IAccountService, AccountService>();
+            services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IMBTICalculationService, MBTICalculationService>();
             services.AddScoped<IDropDownServices, DropDownServices>();
             services.AddSingleton(typeof(IConverter), new SynchronizedConverter(new PdfTools()));

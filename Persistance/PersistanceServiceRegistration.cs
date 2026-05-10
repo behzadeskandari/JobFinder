@@ -51,7 +51,7 @@ namespace Persistance
             // Register FluentValidation with MediatR
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
-            services.AddScoped<ILogsRepository>();
+            services.AddScoped<ILogsRepository,LogsRepository>();
 
             //services.AddScoped(typeof(IReadRepository<>), typeof(GenericReadRepository<>));
             services.AddScoped(typeof(IWriteRepository<>), typeof(GenericWriteRepository<>));

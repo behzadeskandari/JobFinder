@@ -15,16 +15,16 @@ namespace Persistance.Factory
         public Persistance.DatabaseContext.LogContext.ExceptionContext CreateDbContext(string[] args)
         {
 
-            Console.WriteLine($"Creating ExceptionContext...{Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "JobSeeker.Api"))}");
+            Console.WriteLine($"Creating ExceptionContext...{Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "JobFinder"))}");
             // بارگذاری کانفیگ از appsettings.json یا appsettings.Development.json
             IConfigurationRoot configuration = new ConfigurationBuilder()
-                .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "JobSeeker.Api")))
+                .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "JobFinder")))
                 .AddJsonFile("appsettings.Development.json", optional: true)
                  .AddJsonFile("appsettings.json", optional: true)
                 .Build();
 
             var builder = new DbContextOptionsBuilder<Persistance.DatabaseContext.LogContext.ExceptionContext>();
-            var connectionString = configuration.GetConnectionString("WorkLoggingConnection");
+            var connectionString = configuration.GetConnectionString("LoggingConnection");
 
             builder.UseSqlServer(connectionString);
 

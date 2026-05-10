@@ -6,11 +6,11 @@ using JobFinder.Domain.Common.Errors;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-//using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace JobFinder.Controllers
 {
-   // [ApiVersion("1.0")]
+    [ApiVersion("1.0")]
     [Route("api/v{version:apiVersion}/[controller]/[action]")]
     [ApiController]
     public class ApiController : ControllerBase
