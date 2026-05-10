@@ -26,7 +26,7 @@ namespace Core.Configuration
         {
             // Build configuration
             configuration = new ConfigurationBuilder()
-               .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory())))      //,"..", "AppJob.Core"
+               .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Core")))      //
                      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                      .Build();
             if (!configuration.GetSection("FileStorage").Exists() || !configuration.GetSection("Email").Exists())
