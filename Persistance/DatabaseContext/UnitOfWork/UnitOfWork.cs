@@ -92,7 +92,8 @@ namespace Persistance.DatabaseContext.UnitOfWork
         public IMBTIResultAnswersRepository _mbtiResultAnswersRepository;
         public IPsychologyTestResponseAnswer _psychologyTestResponseAnswer;
         public IPsychologyTestResultAnswer _psychologyTestResultAnswer;
-        public UnitOfWork(IMapper IMapper, LogsRepository logsRepository,
+        public UnitOfWork(IMapper IMapper,
+            //LogsRepository logsRepository,
                           WriteDbContext.WriteDbContext writeContext,
                           ReadDbContext.ReadDbContext readContext,
                           ILoggerFactory loggerFactory,
