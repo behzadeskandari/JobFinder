@@ -26,7 +26,7 @@ namespace Core.Configuration
         {
             // Build configuration
             configuration = new ConfigurationBuilder()
-               .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "..", "Core")))      //
+               .SetBasePath(Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory())))      //,"..", "AppJob.Core"
                      .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                      .Build();
             if (!configuration.GetSection("FileStorage").Exists() || !configuration.GetSection("Email").Exists())
@@ -56,10 +56,11 @@ namespace Core.Configuration
                   options.UseSqlServer(configuration.GetConnectionString("DefaultConnectionEmailFileDb")));
 
             // Configure File Storage
-            services.Configure<FileStorageOptions>(options =>
-                configuration.GetSection("FileStorage").Bind(options));
-            services.AddScoped<LocalDiskStorageService>();
-            services.AddScoped<AzureBlobStorageService>();
+            //services.Configure<FileStorageOptions>(options =>
+            //    configuration.GetSection("FileStorage").Bind(options));
+            services.Configure<FileStorageOptions>(configuration.GetSection("FileStorage"));
+            services.AddSingleton<LocalDiskStorageService>();
+            services.AddSingleton<AzureBlobStorageService>();
             services.AddScoped<IFileStorageService>(provider =>
             {
                 var options = provider.GetRequiredService<IOptions<FileStorageOptions>>().Value;

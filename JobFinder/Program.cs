@@ -157,7 +157,6 @@ builder.Services.AddMemoryCache();
 
 
 
-
 //Second Way of Cacheing like in jwtService redis
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -382,6 +381,7 @@ builder.Services.AddLogging(loggingBuilder =>
     loggingBuilder.AddSerilog(); // Use Serilog for Microsoft.Extensions.Logging
 });
 builder.Services.RegisterAppJobServicesApp(builder.Configuration);
+
 //builder.Services.AddHostedService<PeriodicDatabaseSyncService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddSingleton<ProblemDetailsFactory, JobSekeerProblemDetailFactory>();
