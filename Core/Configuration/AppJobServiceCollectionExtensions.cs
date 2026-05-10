@@ -55,10 +55,10 @@ namespace Core.Configuration
             services.AddDbContext<EmailDbContext>(options =>
                   options.UseSqlServer(configuration.GetConnectionString("DefaultConnectionEmailFileDb")));
 
-            // Configure File Storage
-            //services.Configure<FileStorageOptions>(options =>
-            //    configuration.GetSection("FileStorage").Bind(options));
-            services.Configure<FileStorageOptions>(configuration.GetSection("FileStorage"));
+            //Configure File Storage
+            services.Configure<FileStorageOptions>(options =>
+                configuration.GetSection("FileStorage").Bind(options));
+            //services.Configure<FileStorageOptions>(configuration.GetSection("FileStorage"));
             services.AddSingleton<LocalDiskStorageService>();
             services.AddSingleton<AzureBlobStorageService>();
             services.AddScoped<IFileStorageService>(provider =>

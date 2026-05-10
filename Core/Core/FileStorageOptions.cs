@@ -11,16 +11,16 @@ namespace Core.Core
     {
 
         public StorageLocation DefaultStorageLocation { get; set; }
-        internal LocalDiskStorageOptions? Local { get; set; }
-        internal AzureBlobStorageOptions? AzureBlob { get; set; }
+        public LocalDiskStorageOptions? Local { get; set; }
+        public AzureBlobStorageOptions? AzureBlob { get; set; }
     }
 
-    internal class LocalDiskStorageOptions
+    public class LocalDiskStorageOptions
     {
         public string? RootPath { get; set; }
     }
 
-    internal class AzureBlobStorageOptions
+    public class AzureBlobStorageOptions
     {
         public string? ConnectionString { get; set; }
         public string? DefaultContainerName { get; set; }
