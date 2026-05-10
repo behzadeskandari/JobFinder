@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Domain
+namespace Infrastructure
 {
-    public static class InfrastructureServiceRegistration
+    public static class DomainServiceRegistration
     {
-        public static IServiceCollection ConfigureInfrastructureRegistrationServices(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection ConfigureDomainRegistrationServices(this IServiceCollection services, IConfiguration configuration)
         {
 
             return services;

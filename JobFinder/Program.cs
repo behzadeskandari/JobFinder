@@ -45,6 +45,7 @@ using JobFinder.Services;
 using JobFinder.Filters;
 using JobFinder.MiddleWare;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -166,6 +167,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddApplication()
             .ConfigureInfrastructureRegistrationServices(builder.Configuration)
+            .ConfigureDomainRegistrationServices(builder.Configuration)
             .AddPersistanceServices(builder.Configuration);
 
 builder.Services.AddRateLimiter(options =>
