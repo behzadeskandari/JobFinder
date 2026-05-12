@@ -133,7 +133,7 @@ namespace Persistance
             services.AddScoped<IPsychologyTestService, PsychologyTestService>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             services.AddScoped<IUserSettingService, UserSettingService>();
-            //services.AddSingleton<GenericDatabaseSyncService>();
+            services.AddSingleton<GenericDatabaseSyncService>();
             return services;
         }
     }

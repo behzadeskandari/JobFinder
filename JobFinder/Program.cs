@@ -3,14 +3,24 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using System.Threading.Tasks;
-using Core.Configuration;
-using Core.Services;
+using Application;
 using AspNetCoreRateLimit;
+using Core.Configuration;
+using Core.Interfaces;
+using Core.Services;
+using Domain;
 using FluentValidation.AspNetCore;
+using Infrastructure;
+using JobFinder.Common;
+using JobFinder.Domain.Common.Entities;
+using JobFinder.Filters;
+using JobFinder.MiddleWare;
+using JobFinder.Services;
 using MediaBrowser.Model.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -18,6 +28,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -27,27 +38,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Persistance;
+using Persistance.DatabaseContext.ReadDbContext;
+using Persistance.DatabaseContext.SeedData;
+using Persistance.DatabaseContext.WriteDbContext;
+using Persistance.Interceptors;
+using Persistance.Interfaces;
+using Persistance.Services;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.MSSqlServer;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Persistance.Interfaces;
-using Core.Interfaces;
-using Persistance.Interceptors;
-using Persistance.DatabaseContext.WriteDbContext;
-using Persistance.DatabaseContext.ReadDbContext;
-using Application;
-using Domain;
-using Persistance;
-using JobFinder.Domain.Common.Entities;
-using JobFinder.Common;
-using JobFinder.Services;
-using JobFinder.Filters;
-using JobFinder.MiddleWare;
-using Microsoft.AspNetCore.Mvc.Versioning;
-using Infrastructure;
-using Persistance.DatabaseContext.SeedData;
-using Persistance.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -327,8 +328,11 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"])),
         ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"]
+        ValidAudience = builder.Configuration["JWT:Audience"],
+        RoleClaimType = ClaimTypes.Role,  
+        NameClaimType = ClaimTypes.NameIdentifier
     };
+
     options.Events = new JwtBearerEvents
     {
         OnAuthenticationFailed = context =>

@@ -78,7 +78,7 @@ namespace JobFinder.Controllers
 
             if (!results) return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: ErrorMessages.InvalidPassword);//Unauthorized(ErrorMessages.InvalidPassword);
 
-            var userWithRole = await _accountService.AddRoleAsync(user, "User");
+            //var userWithRole = await _accountService.AddRoleAsync(user, "User");
 
             //Not Needed coockie based authentication
             //await _accountService.SignInUserAsync(userWithRole.UserName, userWithRole.Password);
@@ -90,8 +90,8 @@ namespace JobFinder.Controllers
             //    body: body);
 
 
-            var userDto = _accountService.CreateApplicationUserDto(userWithRole);
-            var t = await _jwt.GetToken(userWithRole);
+            var userDto = _accountService.CreateApplicationUserDto(user);
+            var t = await _jwt.GetToken(user);
             userDto.JWT = t;
 
             Response<UserDto> userResponse = new Response<UserDto>()
