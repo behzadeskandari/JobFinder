@@ -38,7 +38,7 @@ namespace Persistance.Services
     {
         private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ILogger<PeriodicDatabaseSyncService> _logger;
-        private readonly TimeSpan _interval = TimeSpan.FromMinutes(2);
+        private readonly TimeSpan _interval = TimeSpan.FromMinutes(5);
 
         //public PeriodicDatabaseSyncService(IServiceProvider serviceProvider, ILogger<PeriodicDatabaseSyncService> logger)
         //{
@@ -85,7 +85,7 @@ namespace Persistance.Services
                     await syncService.SyncEntitiesAsync(
                         entityTypes,
                         incremental: true,
-                        lastSyncTime: DateTime.Now.AddHours(-24),
+                        lastSyncTime: DateTime.UtcNow.AddMinutes(-10),
                         batchSize: 1000,
                         cancellationToken: stoppingToken);
                     _logger.LogInformation("Database synchronization completed at {Time}", DateTime.Now);

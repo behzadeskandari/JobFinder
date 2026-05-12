@@ -405,6 +405,7 @@ builder.Services.AddLogging(loggingBuilder =>
 builder.Services.RegisterAppJobServicesApp(builder.Configuration);
 
 builder.Services.AddHostedService<PeriodicDatabaseSyncService>();
+
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddSingleton<ProblemDetailsFactory, JobSekeerProblemDetailFactory>();
 

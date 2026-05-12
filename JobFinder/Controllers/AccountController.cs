@@ -271,12 +271,14 @@ namespace JobFinder.Controllers
                 EmailConfirmed = true,
             };
             var result = await _accountService.CreateUserAsync(userToAdd, userToAdd.Password);
-
-            User userRecord = await _accountService.AddRoleAsync(result.Value, "Staff");
-
-
             if (!result.IsSuccess) return Problem(statusCode: StatusCodes.Status400BadRequest, detail: result.Errors.First().Message);//BadRequest(result.Errors);
+            if (result.IsSuccess)
+            {
+                User userRecord = await _accountService.AddRoleAsync(result.Value, "Staff");
+            }
 
+
+            
             // Add user to Staff role
             Response<UserDto> userResponse = new Response<UserDto>()
             {
