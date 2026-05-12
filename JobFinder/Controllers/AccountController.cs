@@ -78,7 +78,7 @@ namespace JobFinder.Controllers
 
             if (!results) return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: ErrorMessages.InvalidPassword);//Unauthorized(ErrorMessages.InvalidPassword);
 
-            //var userWithRole = await _accountService.AddRoleAsync(user, "User");
+            var userWithRole = await _accountService.AddRoleAsync(user, "User");
 
             //Not Needed coockie based authentication
             //await _accountService.SignInUserAsync(userWithRole.UserName, userWithRole.Password);
@@ -269,6 +269,7 @@ namespace JobFinder.Controllers
                 Password = registerDto.Password,
                 PictureUrl = string.Empty,
                 EmailConfirmed = true,
+                IsActive = true, 
             };
             var result = await _accountService.CreateUserAsync(userToAdd, userToAdd.Password);
             if (!result.IsSuccess) return Problem(statusCode: StatusCodes.Status400BadRequest, detail: result.Errors.First().Message);//BadRequest(result.Errors);

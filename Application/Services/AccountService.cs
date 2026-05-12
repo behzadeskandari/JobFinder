@@ -131,7 +131,7 @@ namespace JobFinder.Application.Services
 
         public async Task<User?> FindByEmailAsync(string payloadEmail)
         {
-            var record = await _userManager.FindByNameAsync(payloadEmail);
+            var record = await _userManager.FindByEmailAsync(payloadEmail);
             //Return the task of userDto
             return record;
         }
@@ -139,17 +139,20 @@ namespace JobFinder.Application.Services
 
         public async Task<User> AddRoleAsync(User user, string role)
         {
+            IdentityResult identityResult = null; 
             if (await _userManager.IsInRoleAsync(user, role))
             {
                 return user;
             }
-
-            var result = await _userManager.AddToRoleAsync(user, role);
-            if (!result.Succeeded)
+            if (user.Role != role)
             {
-                throw new Exception($"Failed to add role {role} to user {user.UserName}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
-            }
+                identityResult = await _userManager.AddToRoleAsync(user, role);
 
+                if (!identityResult.Succeeded)
+                {
+                    throw new Exception($"Failed to add role {role} to user {user.UserName}: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}");
+                }
+            }
             // Update User.Role if used in JWT or UserDto
             user.Role = role; // Ensure this is persisted if needed
             await _userManager.UpdateAsync(user); // Persist changes if User.Role is stored in DB
