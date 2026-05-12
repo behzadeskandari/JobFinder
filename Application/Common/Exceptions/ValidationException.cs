@@ -9,14 +9,14 @@ namespace JobFinder.Application.Common.Exceptions
 {
     public class ValidationException : Exception
     {
-        public ValidationException()
-            : base("One or more validation failures have occurred.")
+        public ValidationException(string v)
+            : base(v)
         {
             Errors = new Dictionary<string, string[]>();
         }
 
         public ValidationException(IEnumerable<ValidationFailure> failures)
-            : this()
+            : this(failures.First().ErrorMessage)
         {
             Errors = failures
                 .GroupBy(e => e.PropertyName, e => e.ErrorMessage)

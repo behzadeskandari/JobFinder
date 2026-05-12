@@ -1,4 +1,5 @@
 ﻿using FluentResults;
+using JobFinder.Application.Common.Exceptions;
 using JobFinder.Application.Common.Interfaces.Authentication;
 using JobFinder.Application.Common.Interfaces.Services;
 using JobFinder.Contracts.Dtos.Account;
@@ -150,7 +151,7 @@ namespace JobFinder.Application.Services
 
                 if (!identityResult.Succeeded)
                 {
-                    throw new Exception($"Failed to add role {role} to user {user.UserName}: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}");
+                    throw new ValidationException($"Failed to add role {role} to user {user.UserName}: {string.Join(", ", identityResult.Errors.Select(e => e.Description))}");
                 }
             }
             // Update User.Role if used in JWT or UserDto
