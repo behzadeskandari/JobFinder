@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace JobFinder.Controllers.V1
 {
-    [Authorize(Roles = Roles.Role_Staff + "," + Roles.Role_User + "," + Roles.Role_Admin)]
+    [Authorize(Roles = Roles.User)]
     public class WorkExperiencesController : ApiController
     {
 

@@ -47,7 +47,7 @@ namespace JobFinder.Controllers
         }
 
         //[Authorize(Roles = "User,Staff")]
-        [Authorize(Roles = Roles.Role_Staff +"," +Roles.Role_User)]
+        [Authorize(Roles = Roles.Staff +"," +Roles.User)]
         [HttpGet("refresh-user-token")]
         public async Task<ActionResult<Response<UserDto>>> RefreshUserToken()
         {
@@ -70,7 +70,7 @@ namespace JobFinder.Controllers
             User user = await _accountService.FindByNameAsync(loginModel.UserName);
             if (user == null) return Unauthorized(ErrorMessages.InvalidUser);
 
-            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Role_Staff)
+            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Staff)
             {
                 return Unauthorized(ErrorMessages.InvalidUser);
             }
@@ -109,7 +109,7 @@ namespace JobFinder.Controllers
             User user = await _accountService.FindByEmailAsync(loginModel.UserName);
             if (user == null) return Unauthorized(ErrorMessages.InvalidUser);
 
-            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Role_Staff)
+            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Staff)
             {
                 return Unauthorized(ErrorMessages.InvalidUser);
             }
@@ -154,7 +154,7 @@ namespace JobFinder.Controllers
 
                 if (role != null && user != null)
                 {
-                    if (registerDto.Email == user.Email && role.Contains(Roles.Role_Staff))
+                    if (registerDto.Email == user.Email && role.Contains(Roles.Staff))
                     {
                         return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: "You Aready Registerd as A Staff");
                     }
@@ -202,7 +202,7 @@ namespace JobFinder.Controllers
             User user = await _accountService.FindByEmailAsync(loginModel.UserName);
             if (user == null) return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: ErrorMessages.InvalidUser);//Unauthorized(ErrorMessages.InvalidUser);
 
-            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Role_User)
+            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.User)
             {
                 return Unauthorized(ErrorMessages.InvalidUser);
             }
@@ -248,7 +248,7 @@ namespace JobFinder.Controllers
 
                 if (role != null && user != null)
                 {
-                    if (registerDto.Email == user.Email && role.Contains(Roles.Role_Staff))
+                    if (registerDto.Email == user.Email && role.Contains(Roles.Staff))
                     {
                         return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: "You Aready Registerd as A Staff");
                     }
@@ -310,7 +310,7 @@ namespace JobFinder.Controllers
                 var Message = ErrorMessages.DuplicateEmail;
                 if (role != null && user != null)
                 {
-                    if (registerDto.Email == user.Email && role.Contains(Roles.Role_Staff))
+                    if (registerDto.Email == user.Email && role.Contains(Roles.Staff))
                     {
                         return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: "You Aready Registerd as A Staff");
                     }
@@ -436,7 +436,7 @@ namespace JobFinder.Controllers
             return Redirect(returnUrl);
         }
         // [Authorize(Roles = "User,Staff")] // Requires a valid JWT token
-        [Authorize(Roles = Roles.Role_Staff + "," + Roles.Role_User)]
+        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
         [HttpGet("check-login")]
         public async Task<IActionResult> CheckLogin()
         {
@@ -512,7 +512,7 @@ namespace JobFinder.Controllers
             return Ok(userResponse);
         }
 
-        [Authorize(Roles = Roles.Role_Staff + "," + Roles.Role_User)]
+        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
         [HttpPost("getUserStatus")]
         public async Task<IActionResult> GetUserStatus([FromBody] JwtToken token)
         {
@@ -540,7 +540,7 @@ namespace JobFinder.Controllers
             }
         }
 
-        [Authorize(Roles = Roles.Role_Staff + "," + Roles.Role_User)]
+        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {

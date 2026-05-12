@@ -17,7 +17,7 @@ namespace JobFinder.Domain.Common.Entities
         public string Password { get; set; }  = string.Empty;
         public bool? IsActive { get; set; }
         public string PictureUrl { get; set; } = string.Empty;
-        public string Role { get; set; } = Roles.Role_User;
+        public string Role { get; set; } = Roles.User;
 
         public string RefreshToken { get; set; } = string.Empty;
         public DateTime RefreshTokenExpiryTime { get; set; }

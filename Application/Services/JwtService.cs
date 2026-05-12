@@ -90,7 +90,7 @@ namespace JobFinder.Application.Services
                 return new JwtTokenClaims();
             }
             var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
-            var roles = jwtToken.Claims.FirstOrDefault(X => X.Value == Roles.Role_Staff | X.Value == Roles.Role_Admin | X.Value == Roles.Role_User);
+            var roles = jwtToken.Claims.FirstOrDefault(X => X.Value == Roles.Staff | X.Value == Roles.Admin | X.Value == Roles.User);
             var given_name = jwtToken.Claims.FirstOrDefault(c => c.Type == "given_name");
             var family_name = jwtToken.Claims.FirstOrDefault(x => x.Type == "family_name");
             var userId = jwtToken.Claims.First().Value;

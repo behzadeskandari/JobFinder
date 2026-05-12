@@ -25,7 +25,7 @@ namespace JobFinder.Application.Services
         public async Task<PlatformOverview> GetPlatformOverview()
         {
             var totalCandidates = await _unitOfWork.CandidateRepository.CountAsync();
-            var totalEmployers = await _unitOfWork.UsersRepository.GetQueryable().Where(x => x.Role == Roles.Role_Staff).CountAsync();
+            var totalEmployers = await _unitOfWork.UsersRepository.GetQueryable().Where(x => x.Role == Roles.Staff).CountAsync();
             var activeJobPosts = await _unitOfWork.JobPostsRepository.GetQueryable().Where(jp => jp.IsActive == true).CountAsync(); // Assuming IsActive property
             var totalApplications = await _unitOfWork.JobApplication.GetQueryable().CountAsync();
             var totalUser = await _unitOfWork.UsersRepository.GetQueryable().CountAsync();
@@ -43,7 +43,7 @@ namespace JobFinder.Application.Services
         public async Task<IEnumerable<UserRegistrationTrend>> GetUserRegistrationTrends(DateTime? startDate = null, DateTime? endDate = null)
         {
             var candidates = await _unitOfWork.CandidateRepository.GetAllAsync();
-            var employers = await _unitOfWork.UsersRepository.GetQueryable().Where(x => x.Role == Roles.Role_Staff).ToListAsync();
+            var employers = await _unitOfWork.UsersRepository.GetQueryable().Where(x => x.Role == Roles.Staff).ToListAsync();
 
             if (startDate.HasValue)
             {
