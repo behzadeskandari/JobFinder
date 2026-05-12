@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Persistance.DatabaseContext.WriteDbContext;
 
@@ -11,9 +12,11 @@ using Persistance.DatabaseContext.WriteDbContext;
 namespace Persistance.Migrations
 {
     [DbContext(typeof(WriteDbContext))]
-    partial class WriteDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260512035742_mig-001")]
+    partial class mig001
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -410,6 +413,7 @@ namespace Persistance.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Website")
@@ -3238,9 +3242,10 @@ namespace Persistance.Migrations
             modelBuilder.Entity("JobFinder.Domain.Common.Entities.Company", b =>
                 {
                     b.HasOne("JobFinder.Domain.Common.Entities.User", "User")
-                        .WithMany("Companies")
+                        .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -4175,8 +4180,6 @@ namespace Persistance.Migrations
                     b.Navigation("Advertisements");
 
                     b.Navigation("Candidates");
-
-                    b.Navigation("Companies");
 
                     b.Navigation("JobPosts");
 

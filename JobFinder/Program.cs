@@ -46,6 +46,8 @@ using JobFinder.Filters;
 using JobFinder.MiddleWare;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Infrastructure;
+using Persistance.DatabaseContext.SeedData;
+using Persistance.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -109,28 +111,48 @@ Console.WriteLine($"Creating {Directory.GetCurrentDirectory().GetType().Assembly
 builder.Services.AddScoped<AuditSaveChangesInterceptor>();
 string writeConnectionString = builder.Configuration.GetConnectionString("WorkWriteDB");
 string readConnectionString = builder.Configuration.GetConnectionString("WorkReadDB");
-builder.Services.AddDbContext<WriteDbContext>(options =>
-{
+
+
+//builder.Services.AddDbContext<WriteDbContext>(options =>
+//{
+//    var provider = builder.Services.BuildServiceProvider();
+//    // var interceptor = provider.GetRequiredService<AuditSaveChangesInterceptor>();
+//    options.UseSqlServer(writeConnectionString);
+//    //   .AddInterceptors(interceptor);
+//    if (builder.Environment.IsDevelopment())
+//        options.EnableDetailedErrors().EnableSensitiveDataLogging().ConfigureWarnings(x => x.Default(WarningBehavior.Log));
+//}
+//);
+
+////.AddInterceptors(new AuditSaveChangesInterceptor(httpContextAccessor, dateTimeProvider));
+//builder.Services.AddDbContext<ReadDbContext>(options =>
+//{
+//    options.UseSqlServer(readConnectionString);
+//    if (builder.Environment.IsDevelopment())
+//        options.EnableDetailedErrors().EnableSensitiveDataLogging()
+//            .ConfigureWarnings(x => x.Default(WarningBehavior.Log));
+//});
+
+
+// Optional but recommended for background services
+builder.Services.AddDbContextFactory<ReadDbContext>(options => {
+
     var provider = builder.Services.BuildServiceProvider();
     // var interceptor = provider.GetRequiredService<AuditSaveChangesInterceptor>();
-    options.UseSqlServer(writeConnectionString);
+    options.UseSqlServer(readConnectionString);
     //   .AddInterceptors(interceptor);
     if (builder.Environment.IsDevelopment())
         options.EnableDetailedErrors().EnableSensitiveDataLogging().ConfigureWarnings(x => x.Default(WarningBehavior.Log));
-}
-);
 
-
-//.AddInterceptors(new AuditSaveChangesInterceptor(httpContextAccessor, dateTimeProvider));
-builder.Services.AddDbContext<ReadDbContext>(options =>
+});
+builder.Services.AddDbContextFactory<WriteDbContext>(options =>
 {
-    options.UseSqlServer(readConnectionString);
+    options.UseSqlServer(writeConnectionString);
     if (builder.Environment.IsDevelopment())
         options.EnableDetailedErrors().EnableSensitiveDataLogging()
             .ConfigureWarnings(x => x.Default(WarningBehavior.Log));
+
 });
-
-
 
 //DbSerilog For Sensitive Data Logging
 Log.Logger = new LoggerConfiguration()
@@ -382,7 +404,7 @@ builder.Services.AddLogging(loggingBuilder =>
 });
 builder.Services.RegisterAppJobServicesApp(builder.Configuration);
 
-//builder.Services.AddHostedService<PeriodicDatabaseSyncService>();
+builder.Services.AddHostedService<PeriodicDatabaseSyncService>();
 builder.Services.AddScoped<PushNotificationService>();
 builder.Services.AddSingleton<ProblemDetailsFactory, JobSekeerProblemDetailFactory>();
 

@@ -210,12 +210,22 @@ namespace Persistance.DatabaseContext.ReadDbContext
                 .Ignore(b => b.Company);
 
 
-            modelBuilder.Entity<Company>()
-              .HasOne(c => c.User)
-              .WithMany() // Assuming User has no navigation property back to Company
-              .HasForeignKey(c => c.UserId)
-              .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
+            //modelBuilder.Entity<Company>()
+            //  .HasOne(c => c.User)
+            //  .WithMany() // Assuming User has no navigation property back to Company
+            //  .HasForeignKey(c => c.UserId)
+            //  .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Companies)           // Important: Add navigation back if possible
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .IsRequired(false);                   // Make it optional if a company can exist without user
 
+                entity.Property(c => c.UserId)
+                      .HasColumnName("UserId"); // Be explicit
+            });
 
             modelBuilder.Entity<Job>()
              .HasOne(job => job.Company)

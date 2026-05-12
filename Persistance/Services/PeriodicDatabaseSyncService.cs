@@ -107,14 +107,19 @@ namespace Persistance.Services
         private readonly Dictionary<Type, Func<object, object>> _entityMappers;
         private static readonly Dictionary<Type, string[]> _entityIncludes = new Dictionary<Type, string[]>();
         private readonly IServiceScopeFactory _serviceScopeFactory;
+        private readonly IDbContextFactory<WriteDbContext> _writeFactory;
+        private readonly IDbContextFactory<ReadDbContext> _readFactory;
 
         public GenericDatabaseSyncService(
+            IDbContextFactory<WriteDbContext> writeFactory,
+            IDbContextFactory<ReadDbContext> readFactory,
             IServiceScopeFactory serviceScopeFactory,
             ILogger<GenericDatabaseSyncService> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
-
+            _writeFactory = writeFactory;
+            _readFactory = readFactory;
             // Initialize entity includes with duplicate key prevention
             void AddEntityInclude(Type type, string[] includes)
             {
@@ -281,8 +286,10 @@ namespace Persistance.Services
             using var scope = _serviceScopeFactory.CreateScope();
             _logger.LogInformation("Syncing entity type: {EntityType}", entityType.Name);
 
-            var writeDbContext = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
-            var readDbContext = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
+            //var writeDbContext = scope.ServiceProvider.GetRequiredService<WriteDbContext>();
+            //var readDbContext = scope.ServiceProvider.GetRequiredService<ReadDbContext>();
+            await using var writeDbContext = await _writeFactory.CreateDbContextAsync(cancellationToken);
+            await using var readDbContext = await _readFactory.CreateDbContextAsync(cancellationToken);
             var readDbSet = readDbContext.Set<T>();
             _logger.LogInformation("ReadDb connection string: {conn}", readDbContext.Database.GetDbConnection().ConnectionString);
 
@@ -371,11 +378,30 @@ namespace Persistance.Services
                         }
 
                         T existing = null;
-                        // Added uniqueness check for Company to prevent duplicates
-                        if (entityType == typeof(Company))
+
+                        // Special handling for User (by Email)
+                        if (entityType == typeof(User))
+                        {
+                            var emailProp = entityType.GetProperty("Email");
+                            var emailValue = emailProp?.GetValue(item)?.ToString();
+
+                            if (!string.IsNullOrEmpty(emailValue))
+                            {
+                                var parameter = Expression.Parameter(entityType, "e");
+                                var nameAccess = Expression.Property(parameter, emailProp);
+                                var nameConstant = Expression.Constant(emailValue);
+                                var nameEqual = Expression.Equal(nameAccess, nameConstant);
+                                var lambda = Expression.Lambda<Func<T, bool>>(nameEqual, parameter);
+
+                                existing = await readDbSet.FirstOrDefaultAsync(lambda, cancellationToken);
+                            }
+                        }
+                        // Special handling for Company (by Name)
+                        else if (entityType == typeof(Company))
                         {
                             var nameProp = entityType.GetProperty("Name");
                             var nameValue = nameProp?.GetValue(item)?.ToString();
+
                             if (!string.IsNullOrEmpty(nameValue))
                             {
                                 var parameter = Expression.Parameter(entityType, "e");
@@ -383,12 +409,17 @@ namespace Persistance.Services
                                 var nameConstant = Expression.Constant(nameValue);
                                 var nameEqual = Expression.Equal(nameAccess, nameConstant);
                                 var lambda = Expression.Lambda<Func<T, bool>>(nameEqual, parameter);
+
                                 existing = await readDbSet.FirstOrDefaultAsync(lambda, cancellationToken);
                             }
                         }
+                        // Default: Find by Id
                         else
                         {
-                            existing = await readDbSet.FindAsync(new object[] { writeId }, cancellationToken);
+                            if (writeId != null)
+                            {
+                                existing = await readDbSet.FindAsync(new object[] { writeId }, cancellationToken);
+                            }
                         }
 
                         if (existing != null)

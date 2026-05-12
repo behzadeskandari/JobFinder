@@ -42,6 +42,8 @@ namespace JobFinder.Domain.Common.Entities
         public ICollection<PsychologyTestResult> PsychologyTestResults { get; set; }
         public ICollection<PersonalityTestResponse> PersonalityTestResponses { get; set; }
         public ICollection<PersonalityTestResult> PersonalityTestResults { get; set; }
+        public virtual ICollection<Company> Companies { get; set; } = new List<Company>();
+
 
         [NotMapped]
         public string RedirectUrl { get; set; }

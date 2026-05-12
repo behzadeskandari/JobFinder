@@ -1966,11 +1966,6 @@ namespace Persistance.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetUsers",
-                columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "DateCreated", "DateModified", "Discriminator", "Email", "EmailConfirmed", "FirstName", "IsActive", "LastName", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "Password", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "PictureUrl", "RefreshToken", "RefreshTokenExpiryTime", "Role", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "5542BA7C-C896-4500-85F3-2E1E1197122F", 0, "8425b605-3935-454b-aed8-875b75320473", new DateTime(2026, 5, 9, 15, 32, 59, 261, DateTimeKind.Local).AddTicks(6817), new DateTime(2026, 5, 9, 15, 32, 59, 261, DateTimeKind.Local).AddTicks(6819), "User", null, true, "Behzad", true, "Eskandari", false, null, "behzad.b.i.g@gmail.com", "BEHZAD", "JokerWiths!1", "AQAAAAIAAYagAAAAEO67RCiqU+Wci91u+U4N6opNa9cZsBoCraCI41ckR3wvrQnEEjwqaJ6jCarlU+Ix7g==", "09125274263", true, "", "", new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Admin", "ca174fb4-6887-4b34-a12f-22757d25b38d", false, "behzad.b.i.g@gmail.com" });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Advertisements_CategoryId",
                 table: "Advertisements",

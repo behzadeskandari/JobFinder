@@ -32,10 +32,9 @@ namespace JobFinder.Domain.Common.Entities
         [ForeignKey("User")]
         public string UserId { get; set; }
         public User User { get; set; }
-        public ICollection<Job> Jobs { get; set; } = new List<Job>();
-        public ICollection<Advertisement> Advertisements { get; set; }
-        public ICollection<CompanyBenefit> Benefits { get; set; } = new List<CompanyBenefit>();
-
+        public virtual ICollection<Job> Jobs { get; set; } = new List<Job>();
+        public virtual ICollection<Advertisement> Advertisements { get; set; }
+        public virtual ICollection<CompanyBenefit> Benefits { get; set; } = new List<CompanyBenefit>();
         public int? JobCategoryId { get; set; }
         public int? CityId { get; set; }
         public int? ProvinceId { get; set; }

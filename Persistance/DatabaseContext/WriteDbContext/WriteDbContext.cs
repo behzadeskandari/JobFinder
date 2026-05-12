@@ -209,14 +209,32 @@ namespace Persistance.DatabaseContext.WriteDbContext
              .HasForeignKey(b => b.CompanyId)
              .OnDelete(DeleteBehavior.Cascade); // Optional: cascade delete
 
+
+            //modelBuilder.Entity<Company>()
+            //    .HasOne(c => c.User)
+            //    .WithMany() // Assuming User has no navigation property back to Company
+            //    .HasForeignKey(c => c.UserId)
+            //    .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
+            modelBuilder.Entity<Company>(entity =>
+            {
+                entity.Property(c => c.IsActive)
+                      .HasDefaultValue(false);
+
+                entity.Property(c => c.Size)
+                      .HasConversion<string>();
+
+                entity.Property(c => c.Rating)
+                      .HasColumnType("decimal(5,2)");
+
+                // === Correct Relationship ===
+                entity.HasOne(c => c.User)
+                      .WithMany(u => u.Companies)           // ← Must match navigation in User class
+                      .HasForeignKey(c => c.UserId)
+                      .OnDelete(DeleteBehavior.Restrict)
+                      .IsRequired(false);                   // Allow null if needed
+            });
             modelBuilder.Entity<CompanyBenefit>()
                 .Ignore(b => b.Company);
-
-            modelBuilder.Entity<Company>()
-                .HasOne(c => c.User)
-                .WithMany() // Assuming User has no navigation property back to Company
-                .HasForeignKey(c => c.UserId)
-                .OnDelete(DeleteBehavior.Restrict); // Prevent cascading deletes
 
             modelBuilder.Entity<Job>()
              .HasOne(job => job.Company)
@@ -451,7 +469,7 @@ namespace Persistance.DatabaseContext.WriteDbContext
               .OnDelete(DeleteBehavior.Restrict);
 
             //.HasConstraintName("FK_PsychologyTestResponseAnswers_PsychologyTests_PsychologyTestId");
-            AddSpecialUser(modelBuilder);
+            //AddSpecialUser(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)

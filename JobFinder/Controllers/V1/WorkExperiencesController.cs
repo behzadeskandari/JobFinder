@@ -1,10 +1,13 @@
-﻿using JobFinder.Application.Feature.WorkExperience.Command;
+﻿using Domain.Roles;
+using JobFinder.Application.Feature.WorkExperience.Command;
 using JobFinder.Application.Feature.WorkExperience.Queries;
 using JobFinder.Domain.Common.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace JobFinder.Controllers.V1
 {
+    [Authorize(Roles = Roles.Role_Staff + "," + Roles.Role_User + "," + Roles.Role_Admin)]
     public class WorkExperiencesController : ApiController
     {
 

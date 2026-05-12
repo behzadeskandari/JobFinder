@@ -413,8 +413,8 @@ namespace Persistance.Migrations.ReadDb
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(450)")
+                        .HasColumnName("UserId");
 
                     b.Property<string>("Website")
                         .IsRequired()
@@ -3030,10 +3030,9 @@ namespace Persistance.Migrations.ReadDb
             modelBuilder.Entity("JobFinder.Domain.Common.Entities.Company", b =>
                 {
                     b.HasOne("JobFinder.Domain.Common.Entities.User", "User")
-                        .WithMany()
+                        .WithMany("Companies")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("User");
                 });
@@ -3908,6 +3907,8 @@ namespace Persistance.Migrations.ReadDb
                     b.Navigation("Advertisements");
 
                     b.Navigation("Candidates");
+
+                    b.Navigation("Companies");
 
                     b.Navigation("JobPosts");
 
