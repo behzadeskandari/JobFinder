@@ -51,9 +51,9 @@ namespace JobFinder.Controllers
         [HttpGet("refresh-user-token")]
         public async Task<ActionResult<Response<UserDto>>> RefreshUserToken()
         {
-            var user = await _accountService.FindByNameAsync(User.FindFirst(ClaimTypes.Name)?.Value);
+            var user = await _accountService.FindByNameAsync(User.FindFirst(ClaimTypes.Email)?.Value);
             var userDto = _accountService.CreateApplicationUserDto(user);
-            userDto.JWT = await _jwt.GetToken(user);
+            userDto.JWT = await _jwt.GetToken(user , null);
             
             Response<UserDto> userResponse = new Response<UserDto>()
             {
@@ -70,7 +70,7 @@ namespace JobFinder.Controllers
             User user = await _accountService.FindByNameAsync(loginModel.UserName);
             if (user == null) return Unauthorized(ErrorMessages.InvalidUser);
 
-            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Staff)
+            if (string.IsNullOrEmpty(user.Role) || user.Role == Roles.Staff)
             {
                 return Unauthorized(ErrorMessages.InvalidUser);
             }
@@ -91,7 +91,7 @@ namespace JobFinder.Controllers
 
 
             var userDto = _accountService.CreateApplicationUserDto(user);
-            var t = await _jwt.GetToken(user);
+            var t = await _jwt.GetToken(user , null);
             userDto.JWT = t;
 
             Response<UserDto> userResponse = new Response<UserDto>()
@@ -109,7 +109,7 @@ namespace JobFinder.Controllers
             User user = await _accountService.FindByEmailAsync(loginModel.UserName);
             if (user == null) return Unauthorized(ErrorMessages.InvalidUser);
 
-            if (string.IsNullOrEmpty(user.Role) && user.Role == Roles.Staff)
+            if (string.IsNullOrEmpty(user.Role) || user.Role == Roles.Staff)
             {
                 return Unauthorized(ErrorMessages.InvalidUser);
             }
@@ -130,7 +130,7 @@ namespace JobFinder.Controllers
 
 
             var userDto = _accountService.CreateApplicationUserDto(userWithRole);
-            var t = await _jwt.GetToken(userWithRole);
+            var t = await _jwt.GetToken(userWithRole , null);
             userDto.JWT = t;
             Response<UserDto> userResponse = new Response<UserDto>()
             {
@@ -176,10 +176,11 @@ namespace JobFinder.Controllers
                 Password = registerDto.Password,
                 PictureUrl = string.Empty,
                 EmailConfirmed = true,
+                Role = Roles.Admin
             };
             var result = await _accountService.CreateUserAsync(userToAdd, userToAdd.Password);
 
-            var userRecord = await _accountService.AddRoleAsync(result.Value, "Admin");
+            var userRecord = await _accountService.AddRoleAsync(result.Value, Roles.Admin);
 
 
             if (!result.IsSuccess) return Problem(statusCode: StatusCodes.Status400BadRequest, detail: result.Errors.First().Message);//BadRequest(result.Errors);
@@ -224,7 +225,7 @@ namespace JobFinder.Controllers
             //await _accountService.SignInUserAsync(user.UserName,user.Password);
 
             var userDto = _accountService.CreateApplicationUserDto(userWithRole);
-            userDto.JWT = await _jwt.GetToken(userWithRole);
+            userDto.JWT = await _jwt.GetToken(userWithRole , null);
 
             Response<UserDto> userResponse = new Response<UserDto>()
             {

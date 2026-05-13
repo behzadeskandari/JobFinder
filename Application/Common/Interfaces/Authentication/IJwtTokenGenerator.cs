@@ -12,7 +12,7 @@ namespace JobFinder.Application.Common.Interfaces.Authentication
     {
         public Task<string> GenerateToken(User user);
 
-        Task<string> GetToken(User user);
+        Task<string> GetToken(User user, string token);
 
         public JwtTokenClaims ReadToken(string token);
 

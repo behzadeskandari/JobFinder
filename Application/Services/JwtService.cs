@@ -1,33 +1,36 @@
-﻿using JobFinder.Application.Common.Interfaces.Authentication;
-using JobFinder.Domain.Common.Entities;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
+using Domain.Roles;
+using JobFinder.Application.Common.Interfaces.Authentication;
 using JobFinder.Application.Common.Interfaces.Services;
 using JobFinder.Contracts.Dtos.JwtTokenClaims;
-using System.Security.Cryptography;
+using JobFinder.Domain.Common.Entities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Domain.Roles;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 
 namespace JobFinder.Application.Services
 {
     public class JwtService : IJwtTokenGenerator
     {
-        private readonly IMemoryCache _cache;
+        //private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly IConfiguration _config;
         private readonly SymmetricSecurityKey _jwtKey;
-        public JwtService(IConfiguration config,IMemoryCache memoryCache)
+        public JwtService(IConfiguration config, IDistributedCache cache)
         {
             _config = config;
-            _cache = memoryCache;
+            _cache = cache;
             // jwtToken is used for bath encrypting and description the JWT token 
             _jwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]));
 
@@ -44,7 +47,7 @@ namespace JobFinder.Application.Services
             };
 
             var creadentials = new SigningCredentials(_jwtKey, SecurityAlgorithms.HmacSha512Signature);
-            
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(userClaims),
@@ -56,23 +59,43 @@ namespace JobFinder.Application.Services
             //await _signInManager.SignInAsync(user, isPersistent: false);
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwt = tokenHandler.CreateToken(tokenDescriptor);
-            var token =  tokenHandler.WriteToken(jwt);
+            var token = tokenHandler.WriteToken(jwt);
             if (string.IsNullOrEmpty(token) || token.Split('.').Length != 3)
             {
-                _cache.Set(user.Id, token, TimeSpan.FromDays(int.Parse(_config["JWT:ExpiresInDays"])));
+
+                var redisKey = $"verification:{token}";
+
+                var options = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2)
+                };
+
+                await _cache.SetStringAsync(
+                    redisKey,
+                    user.UserName,
+                    options
+                );
+                //_cache.Set(user.Id, token, TimeSpan.FromDays(int.Parse(_config["JWT:ExpiresInDays"])));
                 throw new Exception("Generated JWT is invalid");
             }
             return token;
         }
 
-        public async Task<string> GetToken(User user)
+        public async Task<string> GetToken(User user, string Incomingtoken)
         {
-            //string token = _cache.Get<string>(user.UserName);
-            //if (token == null)
-            //{
-               var token = await GenerateToken(user);
-               // _cache.Set(user.UserName, token);
-            //}
+            var token = string.Empty;
+            if (Incomingtoken != null)
+            {
+                token = await GenerateToken(user);
+            }
+            else  if (string.IsNullOrWhiteSpace(token))
+            {
+                await _cache.SetStringAsync(user.UserName, user.UserName);
+                token = await GenerateToken(user);
+                await _cache.SetStringAsync(user.UserName, token);
+                return token;
+            }
+           
             return token;
         }
 
@@ -106,7 +129,7 @@ namespace JobFinder.Application.Services
             };
         }
 
-        public Task<string> GenerateRefreshToken()
+        public async Task<string> GenerateRefreshToken()
         {
             // Get refresh token length from configuration (default to 32 bytes if not specified)
             int tokenLength = int.TryParse(_config["JWT:RefreshTokenLength"], out var length) ? length : 32;
@@ -123,9 +146,20 @@ namespace JobFinder.Application.Services
             int refreshTokenExpiryDays = int.TryParse(_config["JWT:RefreshTokenExpiresInDays"], out var expiry) ? expiry : 7;
 
             // Store the refresh token in cache with expiration
-            _cache.Set($"RefreshToken_{refreshToken}", true, TimeSpan.FromDays(refreshTokenExpiryDays));
+            //_cache.Set($"RefreshToken_{refreshToken}", true, TimeSpan.FromDays(refreshTokenExpiryDays));
+            var redisKey = $"verification:{refreshToken}";
 
-            return Task.FromResult(refreshToken);
+            var options = new DistributedCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(2)
+            };
+
+            await _cache.SetStringAsync(
+                redisKey,
+                refreshToken,
+                options
+            );
+            return await Task.FromResult(refreshToken);
         }
     }
 }
