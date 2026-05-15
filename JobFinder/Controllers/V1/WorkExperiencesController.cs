@@ -38,7 +38,7 @@ namespace JobFinder.Controllers.V1
             return CreatedAtAction(nameof(GetWorkExperienceById), new { id = result }, result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> UpdateWorkExperience(Guid id, UpdateWorkExperienceCommand command)
         {
             if (id != command.Id)
@@ -53,7 +53,7 @@ namespace JobFinder.Controllers.V1
             return Problem(statusCode: StatusCodes.Status204NoContent, detail: "NoContent");
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         public async Task<IActionResult> DeleteWorkExperience(Guid id)
         {
             var command = new DeleteWorkExperienceCommand(id);
