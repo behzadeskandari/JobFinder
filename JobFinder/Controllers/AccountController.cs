@@ -47,7 +47,7 @@ namespace JobFinder.Controllers
         }
 
         //[Authorize(Roles = "User,Staff")]
-        [Authorize(Roles = Roles.Staff +"," +Roles.User)]
+        [Authorize(Roles = Roles.StaffAndUser)]
         [HttpGet("refresh-user-token")]
         public async Task<ActionResult<Response<UserDto>>> RefreshUserToken()
         {
@@ -117,7 +117,7 @@ namespace JobFinder.Controllers
 
             if (!results) return Problem(statusCode: StatusCodes.Status401Unauthorized, detail: ErrorMessages.InvalidPassword);//Unauthorized(ErrorMessages.InvalidPassword);
 
-            var userWithRole = await _accountService.AddRoleAsync(user, "Admin");
+            var userWithRole = await _accountService.AddRoleAsync(user, Roles.Admin);
 
             //Not Needed coockie based authentication
             //await _accountService.SignInUserAsync(userWithRole.UserName, userWithRole.Password);
@@ -213,12 +213,12 @@ namespace JobFinder.Controllers
 
             if (user.Role == "Admin")
             {
-                userWithRole = await _accountService.AddRoleAsync(user, "Admin");
+                userWithRole = await _accountService.AddRoleAsync(user, Roles.Admin);
                 userWithRole.RedirectUrl = Routes.AdminDashBoard;
             }
             else
             {
-                userWithRole = await _accountService.AddRoleAsync(user, "Staff");
+                userWithRole = await _accountService.AddRoleAsync(user, Roles.Staff);
                 userWithRole.RedirectUrl = Routes.StaffDashBoard;
             }
             //Coocike based
@@ -276,7 +276,7 @@ namespace JobFinder.Controllers
             if (!result.IsSuccess) return Problem(statusCode: StatusCodes.Status400BadRequest, detail: result.Errors.First().Message);//BadRequest(result.Errors);
             if (result.IsSuccess)
             {
-                User userRecord = await _accountService.AddRoleAsync(result.Value, "Staff");
+                User userRecord = await _accountService.AddRoleAsync(result.Value, Roles.Staff);
             }
 
 
@@ -333,7 +333,7 @@ namespace JobFinder.Controllers
             };
             var result = await _accountService.CreateUserAsync(userToAdd, userToAdd.Password);
 
-            var userRecord = await _accountService.AddRoleAsync(result.Value, "Staff");
+            var userRecord = await _accountService.AddRoleAsync(result.Value, Roles.Staff);
 
             if (!result.IsSuccess) return Problem(statusCode: StatusCodes.Status400BadRequest, detail: result.Errors.First().Message);// BadRequest(result.Errors);
 
@@ -383,7 +383,7 @@ namespace JobFinder.Controllers
                     return BadRequest(createResult.Errors);
 
 
-                await _accountService.AddRoleAsync(user, "User");
+                await _accountService.AddRoleAsync(user, Roles.User);
 
                 //string body = $"ورود کاربر : {user.Email} با پسورد {user.Password}";
                 //var results = await _communicationOrchestrator.SendEmailAsync(
@@ -438,7 +438,7 @@ namespace JobFinder.Controllers
             return Redirect(returnUrl);
         }
         // [Authorize(Roles = "User,Staff")] // Requires a valid JWT token
-        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
+        [Authorize(Roles = Roles.StaffAndUser)]
         [HttpGet("check-login")]
         public async Task<IActionResult> CheckLogin()
         {
@@ -475,7 +475,7 @@ namespace JobFinder.Controllers
         }
 
         [HttpGet("Logout")]
-        public async Task<IActionResult> LogOut(User user, string role = "User")
+        public async Task<IActionResult> LogOut(User user, string role = Roles.User)
         {
             var userRecord = _accountService.SignOutUserAsync(user, role);
 
@@ -514,7 +514,7 @@ namespace JobFinder.Controllers
             return Ok(userResponse);
         }
 
-        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
+        [Authorize(Roles = Roles.StaffAndUser)]
         [HttpPost("getUserStatus")]
         public async Task<IActionResult> GetUserStatus([FromBody] JwtToken token)
         {
@@ -542,7 +542,7 @@ namespace JobFinder.Controllers
             }
         }
 
-        [Authorize(Roles = Roles.Staff + "," + Roles.User)]
+        [Authorize(Roles = Roles.All)]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
         {
