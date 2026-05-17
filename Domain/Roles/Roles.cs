@@ -15,6 +15,7 @@ namespace Domain.Roles
         public const string All = $"{Admin},{Staff},{User}";
 
         public const string StaffAndAbove = $"{Admin},{Staff}";
+        public const string AdminAndUser = $"{Admin},{User}";
         public const string StaffAndUser = $"{Admin},{User}";
     }
 }

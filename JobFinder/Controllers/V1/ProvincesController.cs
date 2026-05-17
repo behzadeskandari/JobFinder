@@ -11,7 +11,6 @@ namespace JobFinder.Controllers.V1
     public class ProvincesController : ApiController
     {
 
-        [Authorize(Roles = Roles.All)]
         [HttpGet("GetAllProvinces")]
         public async Task<ActionResult<List<ProvinceDto>>> GetAllProvinces()
         {
@@ -27,7 +26,6 @@ namespace JobFinder.Controllers.V1
             }
         }
 
-        [Authorize(Roles = Roles.All)]
         [HttpGet("GetProvinceById/{id}")]
         public async Task<ActionResult<List<ProvinceDto>>> GetProvinceById(int id)
         {

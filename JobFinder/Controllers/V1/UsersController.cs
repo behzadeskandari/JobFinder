@@ -293,7 +293,7 @@ namespace JobFinder.Controllers.V1
             return Ok(settings);
         }
 
-        [HttpPut("settings")]
+        [HttpPost("settings")]
         [Authorize]
         public async Task<ActionResult<UserSettingsDto>> UpdateSettings([FromBody] UserSettingsDto settings)
         {
