@@ -60,7 +60,7 @@ namespace JobFinder.Controllers.V1
             return CreatedAtAction(nameof(GetJobById), new { id = result }, result);
         }
 
-        [HttpPut("{id}")]
+        [HttpPost("{id}")]
 
         [Authorize(Roles = Roles.Admin)]
         //[Authorize(Roles = SD.Role_Admin + "," + SD.Role_Staff)] // Only Admin and Staff can update
@@ -76,9 +76,8 @@ namespace JobFinder.Controllers.V1
             return Problem(statusCode: StatusCodes.Status204NoContent, detail: "NoContent");
         }
 
-
         [Authorize(Roles = Roles.Admin)]
-        [HttpDelete("{id}")]
+        [HttpPost("{id}")]
         //[Authorize(Roles = SD.Role_Admin)] // Only Admin can delete
         public async Task<IActionResult> DeleteJob(int id)
         {

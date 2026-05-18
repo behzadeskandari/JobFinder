@@ -475,8 +475,8 @@ app.UseRateLimiter();
 //app.UseCors("AppOrigins");
 app.MapControllers();
 
-//await SeedData.InitializeAsync(app.Services);
-//await SeedData.SeedAsync(app.Services);
-//await SeedData.Initialize(app.Services);
+await SeedData.InitializeAsync(app.Services);
+await SeedData.SeedAsync(app.Services);
+await SeedData.Initialize(app.Services);
 
 app.Run();

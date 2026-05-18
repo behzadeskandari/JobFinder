@@ -19,7 +19,6 @@ namespace Core.Db
         public DbSet<SMSLog> SMSLogs { get; set; }
         public DbSet<SendResult> SendResults { get; set; }
         public DbSet<EmailMessage> EmailMessages { get; set; }
-
         public DbSet<GeneratedLink> GeneratedLinks { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -48,7 +48,7 @@ namespace JobFinder.Controllers
 
         //[Authorize(Roles = "User,Staff")]
         [Authorize(Roles = Roles.StaffAndUser)]
-        [HttpGet("refresh-user-token")]
+        [HttpPost("refresh-user-token")]
         public async Task<ActionResult<Response<UserDto>>> RefreshUserToken()
         {
             var user = await _accountService.FindByNameAsync(User.FindFirst(ClaimTypes.Email)?.Value);

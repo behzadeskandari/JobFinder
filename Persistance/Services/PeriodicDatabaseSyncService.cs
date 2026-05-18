@@ -472,43 +472,89 @@ namespace Persistance.Services
             Dictionary<Type, Dictionary<object, object>> idMapping,
             CancellationToken cancellationToken)
         {
-            var navigations = readDbContext.Model.FindEntityType(entityType)?.GetNavigations() ?? Enumerable.Empty<INavigation>();
-            var foreignKeys = readDbContext.Model.FindEntityType(entityType)?.GetForeignKeys() ?? Enumerable.Empty<IForeignKey>();
+            var navigations = readDbContext.Model.FindEntityType(entityType)?.GetNavigations()
+        ?? Enumerable.Empty<INavigation>();
+
+            var foreignKeys = readDbContext.Model.FindEntityType(entityType)?.GetForeignKeys()
+                ?? Enumerable.Empty<IForeignKey>();
 
             foreach (var fk in foreignKeys)
             {
                 var principalType = fk.PrincipalEntityType.ClrType;
-                var principalKeyProp = fk.PrincipalKey.Properties[0].PropertyInfo;
-                var dependentKeyProp = fk.Properties[0].PropertyInfo;
 
-                var dependentValue = dependentKeyProp.GetValue(sourceEntity);
-                if (dependentValue != null && idMapping.TryGetValue(principalType, out var typeIdMapping) && typeIdMapping.TryGetValue(dependentValue, out var mappedId))
+                var dependentProperty = fk.Properties[0];                    // EF Property
+                var dependentKeyProp = dependentProperty.PropertyInfo;       // Can be null (shadow property)
+
+                object? dependentValue = null;
+
+                if (dependentKeyProp != null)
                 {
-                    dependentKeyProp.SetValue(targetEntity ?? sourceEntity, mappedId);
+                    dependentValue = dependentKeyProp.GetValue(sourceEntity);
+                }
+                else
+                {
+                    // Shadow Property fallback
+                    var entry = readDbContext.Entry(sourceEntity);
+                    dependentValue = entry.Property(dependentProperty.Name).CurrentValue;
+                }
+
+                if (dependentValue == null)
+                    continue;
+
+                if (idMapping.TryGetValue(principalType, out var typeIdMapping) &&
+                    typeIdMapping.TryGetValue(dependentValue, out var mappedId))
+                {
+                    if (dependentKeyProp != null)
+                    {
+                        dependentKeyProp.SetValue(targetEntity ?? sourceEntity, mappedId);
+                    }
+                    else
+                    {
+                        // Shadow property update
+                        var targetEntry = readDbContext.Entry(targetEntity ?? sourceEntity);
+                        targetEntry.Property(dependentProperty.Name).CurrentValue = mappedId;
+                    }
+
                     _logger.LogDebug("Updated foreign key {PropertyName} from {OldId} to {NewId} for {EntityType}",
-                        dependentKeyProp.Name, dependentValue, mappedId, entityType.Name);
+                        dependentProperty.Name, dependentValue, mappedId, entityType.Name);
                 }
                 else if (dependentValue != null)
                 {
                     var principalEntity = await readDbContext.FindAsync(principalType, new object[] { dependentValue }, cancellationToken);
                     if (principalEntity != null)
                     {
-                        dependentKeyProp.SetValue(targetEntity ?? sourceEntity, dependentValue);
-                        if (!idMapping.ContainsKey(principalType))
+                        if (dependentKeyProp != null)
                         {
-                            idMapping[principalType] = new Dictionary<object, object>();
+                            dependentKeyProp.SetValue(targetEntity ?? sourceEntity, dependentValue);
                         }
+                        else
+                        {
+                            var targetEntry = readDbContext.Entry(targetEntity ?? sourceEntity);
+                            targetEntry.Property(dependentProperty.Name).CurrentValue = dependentValue;
+                        }
+
+                        if (!idMapping.ContainsKey(principalType))
+                            idMapping[principalType] = new Dictionary<object, object>();
+
                         idMapping[principalType][dependentValue] = dependentValue;
                     }
                     else
                     {
                         _logger.LogWarning("Principal entity {PrincipalType} with Id {Id} not found in ReadDB, setting foreign key to null for {EntityType}",
                             principalType.Name, dependentValue, entityType.Name);
-                        dependentKeyProp.SetValue(targetEntity ?? sourceEntity, null);
+
+                        if (dependentKeyProp != null)
+                            dependentKeyProp.SetValue(targetEntity ?? sourceEntity, null);
+                        else
+                        {
+                            var targetEntry = readDbContext.Entry(targetEntity ?? sourceEntity);
+                            targetEntry.Property(dependentProperty.Name).CurrentValue = null;
+                        }
                     }
                 }
             }
 
+            // Navigation part remains unchanged
             foreach (var navigation in navigations)
             {
                 var navigationProperty = navigation.PropertyInfo;
@@ -516,6 +562,7 @@ namespace Persistance.Services
                 if (relatedEntity == null) continue;
 
                 var relatedEntityType = navigationProperty.PropertyType;
+
                 if (navigation.IsCollection)
                 {
                     var collection = relatedEntity as IEnumerable<object>;
@@ -531,7 +578,8 @@ namespace Persistance.Services
                     foreach (var relatedItem in relatedEntities)
                     {
                         var relatedId = relatedKeyProp.GetValue(relatedItem);
-                        if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) && typeIdMapping.TryGetValue(relatedId, out var mappedId))
+                        if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) &&
+                            typeIdMapping.TryGetValue(relatedId, out var mappedId))
                         {
                             var trackedEntity = await readDbContext.FindAsync(relatedEntityType, new object[] { mappedId }, cancellationToken);
                             if (trackedEntity != null)
@@ -549,7 +597,8 @@ namespace Persistance.Services
                     if (relatedKeyProp == null) continue;
 
                     var relatedId = relatedKeyProp.GetValue(relatedEntity);
-                    if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) && typeIdMapping.TryGetValue(relatedId, out var mappedId))
+                    if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) &&
+                        typeIdMapping.TryGetValue(relatedId, out var mappedId))
                     {
                         var trackedEntity = await readDbContext.FindAsync(relatedEntityType, new object[] { mappedId }, cancellationToken);
                         if (trackedEntity != null)
@@ -559,6 +608,93 @@ namespace Persistance.Services
                     }
                 }
             }
+            //var navigations = readDbContext.Model.FindEntityType(entityType)?.GetNavigations() ?? Enumerable.Empty<INavigation>();
+            //var foreignKeys = readDbContext.Model.FindEntityType(entityType)?.GetForeignKeys() ?? Enumerable.Empty<IForeignKey>();
+
+            //foreach (var fk in foreignKeys)
+            //{
+            //    var principalType = fk.PrincipalEntityType.ClrType;
+            //    var principalKeyProp = fk.PrincipalKey.Properties[0].PropertyInfo;
+            //    var dependentKeyProp = fk.Properties[0].PropertyInfo;
+
+            //    var dependentValue = dependentKeyProp.GetValue(sourceEntity);
+            //    if (dependentValue != null && idMapping.TryGetValue(principalType, out var typeIdMapping) && typeIdMapping.TryGetValue(dependentValue, out var mappedId))
+            //    {
+            //        dependentKeyProp.SetValue(targetEntity ?? sourceEntity, mappedId);
+            //        _logger.LogDebug("Updated foreign key {PropertyName} from {OldId} to {NewId} for {EntityType}",
+            //            dependentKeyProp.Name, dependentValue, mappedId, entityType.Name);
+            //    }
+            //    else if (dependentValue != null)
+            //    {
+            //        var principalEntity = await readDbContext.FindAsync(principalType, new object[] { dependentValue }, cancellationToken);
+            //        if (principalEntity != null)
+            //        {
+            //            dependentKeyProp.SetValue(targetEntity ?? sourceEntity, dependentValue);
+            //            if (!idMapping.ContainsKey(principalType))
+            //            {
+            //                idMapping[principalType] = new Dictionary<object, object>();
+            //            }
+            //            idMapping[principalType][dependentValue] = dependentValue;
+            //        }
+            //        else
+            //        {
+            //            _logger.LogWarning("Principal entity {PrincipalType} with Id {Id} not found in ReadDB, setting foreign key to null for {EntityType}",
+            //                principalType.Name, dependentValue, entityType.Name);
+            //            dependentKeyProp.SetValue(targetEntity ?? sourceEntity, null);
+            //        }
+            //    }
+            //}
+
+            //foreach (var navigation in navigations)
+            //{
+            //    var navigationProperty = navigation.PropertyInfo;
+            //    var relatedEntity = navigationProperty.GetValue(sourceEntity);
+            //    if (relatedEntity == null) continue;
+
+            //    var relatedEntityType = navigationProperty.PropertyType;
+            //    if (navigation.IsCollection)
+            //    {
+            //        var collection = relatedEntity as IEnumerable<object>;
+            //        if (collection == null) continue;
+
+            //        var relatedEntities = collection.ToList();
+            //        var relatedKeyProp = relatedEntityType.GetProperty("Id");
+            //        if (relatedKeyProp == null) continue;
+
+            //        var newCollection = Activator.CreateInstance(navigationProperty.PropertyType);
+            //        var addMethod = navigationProperty.PropertyType.GetMethod("Add");
+
+            //        foreach (var relatedItem in relatedEntities)
+            //        {
+            //            var relatedId = relatedKeyProp.GetValue(relatedItem);
+            //            if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) && typeIdMapping.TryGetValue(relatedId, out var mappedId))
+            //            {
+            //                var trackedEntity = await readDbContext.FindAsync(relatedEntityType, new object[] { mappedId }, cancellationToken);
+            //                if (trackedEntity != null)
+            //                {
+            //                    addMethod.Invoke(newCollection, new[] { trackedEntity });
+            //                }
+            //            }
+            //        }
+
+            //        navigationProperty.SetValue(targetEntity ?? sourceEntity, newCollection);
+            //    }
+            //    else
+            //    {
+            //        var relatedKeyProp = relatedEntityType.GetProperty("Id");
+            //        if (relatedKeyProp == null) continue;
+
+            //        var relatedId = relatedKeyProp.GetValue(relatedEntity);
+            //        if (idMapping.TryGetValue(relatedEntityType, out var typeIdMapping) && typeIdMapping.TryGetValue(relatedId, out var mappedId))
+            //        {
+            //            var trackedEntity = await readDbContext.FindAsync(relatedEntityType, new object[] { mappedId }, cancellationToken);
+            //            if (trackedEntity != null)
+            //            {
+            //                navigationProperty.SetValue(targetEntity ?? sourceEntity, trackedEntity);
+            //            }
+            //        }
+            //    }
+            //}
         }
 
         private IEnumerable<Type> OrderEntityTypesByDependencies(IEnumerable<Type> entityTypes)

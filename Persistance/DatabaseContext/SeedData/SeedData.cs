@@ -901,6 +901,7 @@ namespace Persistance.DatabaseContext.SeedData
 
                 if (!context.TermsOfServices.Any())
                 {
+
                     var termsOfService = new TermsOfService
                     {
                         Version = "1.0",
@@ -914,7 +915,6 @@ namespace Persistance.DatabaseContext.SeedData
                     {
                         new TermsSection
                         {
-                            Id = 1,
                             TermsOfServiceId =id, // ارجاع به TermsOfService با Id = 1
                             Title = "مقدمه",
                             Content = "به پلتفرم کاریابی ما خوش آمدید. این شرایط سرویس، قوانین و مقررات استفاده از خدمات ما را برای کارجویان و کارفرمایان تعیین می‌کند. با استفاده از پلتفرم، شما موافقت خود را با این شرایط اعلام می‌کنید.",
@@ -923,7 +923,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                            Id = 2,
                             TermsOfServiceId = id,
                             Title = "تعهدات کارجویان",
                             Content = "کارجویان متعهد می‌شوند اطلاعات هویتی و رزومه خود را به صورت دقیق و کامل وارد کنند. هرگونه اطلاعات نادرست، ممکن است منجر به حذف حساب کاربری شود. ارسال رزومه برای موقعیت‌های شغلی نامرتبط، مجاز نیست.",
@@ -932,7 +931,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                            Id = 3,
                             TermsOfServiceId = id,
                             Title = "تعهدات کارفرمایان",
                             Content = "کارفرمایان متعهد می‌شوند اطلاعات شرکت و فرصت‌های شغلی را به صورت صحیح و شفاف درج کنند. هرگونه آگهی شغلی که شامل تبعیض یا محتوای غیرقانونی باشد، حذف خواهد شد. کارفرمایان باید در زمان مشخص به درخواست‌های ارسالی پاسخ دهند.",
@@ -941,7 +939,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                            Id = 4,
                             TermsOfServiceId = id,
                             Title = "حریم خصوصی و حفاظت از داده‌ها",
                             Content = "ما متعهد به حفاظت از اطلاعات شخصی کاربران هستیم. اطلاعات جمع‌آوری شده تنها با رضایت صریح شما و به منظور بهبود خدمات، در اختیار طرفین (کارجو و کارفرما) قرار خواهد گرفت. برای اطلاعات بیشتر، لطفاً سیاست حفظ حریم خصوصی ما را مطالعه کنید.",
@@ -950,7 +947,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                            Id = 5,
                             TermsOfServiceId = id,
                             Title = "مالکیت معنوی",
                             Content = "کلیه حقوق مالکیت معنوی پلتفرم، از جمله لوگو، محتوا و طراحی، متعلق به ما است. هرگونه استفاده غیرمجاز از این موارد پیگرد قانونی دارد.",
@@ -959,7 +955,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                            Id = 6,
                             TermsOfServiceId = id,
                             Title = "محدودیت مسئولیت",
                             Content = "پلتفرم ما تنها واسطه بین کارجو و کارفرما است. ما هیچگونه مسئولیتی در قبال صحت اطلاعات درج شده توسط کاربران یا نتایج مصاحبه‌ها و استخدام‌ها نداریم. مسئولیت نهایی بر عهده طرفین است.",
@@ -968,7 +963,6 @@ namespace Persistance.DatabaseContext.SeedData
                         },
                         new TermsSection
                         {
-                             Id = 7,
                             TermsOfServiceId = id,
                             Title = "حل اختلافات",
                             Content = "در صورت بروز هرگونه اختلاف، ابتدا تلاش می‌شود از طریق مذاکره و میانجی‌گری حل و فصل شود. در غیر این صورت، حل اختلاف از طریق مراجع قانونی صالح پیگیری خواهد شد.",

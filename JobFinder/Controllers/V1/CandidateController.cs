@@ -120,7 +120,7 @@ namespace JobFinder.Controllers.V1
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpPut("UpdateCandidate/{id}")]
+        [HttpPost("UpdateCandidate/{id}")]
         public async Task<IActionResult> UpdateCandidate(Guid id, [FromBody] CandidateUpdateDto dto)
         {
             try
@@ -145,7 +145,7 @@ namespace JobFinder.Controllers.V1
         }
 
         [Authorize(Roles = "Admin")]
-        [HttpDelete("DeleteCandidate/{id}")]
+        [HttpPost("DeleteCandidate/{id}")]
         public async Task<IActionResult> DeleteCandidate(Guid id)
         {
             try
